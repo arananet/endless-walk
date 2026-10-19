@@ -1,4 +1,4 @@
-# OpenSpec Configuration — endless-walk
+# OpenSpec Configuration: endless-walk
 # Onboarded from arananet/openspec-template on 2026-10-18.
 
 project:
@@ -6,7 +6,7 @@ project:
   owner: "arananet"
   team: "arananet"
   domain: "web-games"
-  description: "Endless first-person walking game: procedurally generated infinite routes with gaussian splat landmarks, running fully client-side."
+  description: "Punch Rider: first-person motorcycle combat on an endless highway. Punch aggressive traffic with absurd physics, ride photoreal splat corridors, fully client-side."
   tech_stack: "javascript, three.js, spark.js, gaussian-splatting, cloudflare-pages"
 
 spec:

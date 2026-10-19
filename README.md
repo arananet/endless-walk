@@ -1,8 +1,8 @@
-# endless-walk
+# Punch Rider
 
 ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?logo=javascript&logoColor=black) ![Three.js](https://img.shields.io/badge/Three.js-gray) ![Spark.js](https://img.shields.io/badge/Spark.js-gray) ![Gaussian Splatting](https://img.shields.io/badge/Gaussian_Splatting-gray) ![Cloudflare Pages](https://img.shields.io/badge/Cloudflare_Pages-gray) ![OpenSpec](https://img.shields.io/badge/OpenSpec-enforced-blueviolet) ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 
-> Endless first-person walking game: procedurally generated infinite routes with gaussian splat landmarks, running fully client-side.
+> First-person motorcycle combat on an endless seeded highway. Traffic swerves at you. Punch it first.
 
 ---
 
@@ -17,62 +17,50 @@ python3 -m http.server 8080
 # open http://localhost:8080
 ```
 
-Append `?seed=12345` to replay a specific walk, or press "New walk" for a random seed.
+Append `?seed=12345` to replay a specific highway, or press "New run" for a random seed.
 
 ---
 
 ## Usage
 
-* WASD or arrow keys: walk. T or the Auto-walk button: toggle automatic walking.
-* Mouse: click the scene to capture the cursor, move to look. Drag also works without pointer lock.
-* P or Esc: pause and resume.
-* Mobile: left virtual joystick to walk, drag the right side of the screen to look.
+* A/D or arrow keys: steer between lanes at 140 km/h.
+* Q/E, or click the left/right half of the screen: punch left/right. A connected punch launches the car with the absurd physics engine.
+* P or Esc: pause. Enter on the game over screen: ride again.
+* Mobile: drag to steer, tap the left/right half to punch.
 
-The trail gently pushes you back if you wander too far sideways, and the HUD shows distance walked, the current biome, and the seed.
+3 hits and you wipe out. Near misses pay +50. Landed punches chain a combo multiplier up to x5 within a 3 second window. Best score is kept in localStorage.
 
 ---
 
 ## How it works
 
-The game combines two different techniques, each doing what it is good at:
+The game is three systems on top of a seeded road:
 
-* **Procedural infinite route (client side).** The world is a sequence of 60 meter chunks along the forward axis. Each chunk is generated deterministically from `(seed, chunkIndex)`: a displaced terrain heightfield, a curving walkable path ribbon smoothed across chunk borders with Catmull-Rom interpolation, instanced trees and rocks kept clear of the trail, and a biome (forest, meadow, desert, canyon, snowfield) picked from a seeded schedule. Chunks ahead are generated on demand, chunks behind are disposed. The terrain height is an analytic function, so the player ground clamp and the landmark placer query it without mesh sampling.
-* **Baked splat landmarks.** Gaussian splats render real captured places, but a splat is a baked capture: it cannot be generated on the fly. So splats are not used for the infinite terrain. They are used for what they are best at: a small set of photoreal landmark scenes pinned to specific chunks, rendered with Spark.js alongside the procedural geometry.
+* **Seeded endless road.** The highway is a sequence of 60 meter chunks along the forward axis, deterministic from `(seed, chunkIndex)`: a 3 lane ribbon with gentle curves and elevation, lane markings, guardrails, streetlights, and roadside terrain with vegetation. Chunks generate ahead and dispose behind. Road height is an analytic function shared by the mesh, the rider, traffic and splat placement, so nothing ever samples the mesh.
+* **Punch combat.** Traffic spawns ahead with ambient cruisers and aggressive drivers. Aggressors telegraph for at least 0.8 seconds with a visible lean and lane drift before swerving at the rider. Punches have a 0.35 s cooldown and a hitbox of 2.5 m on the punching side; a whiff still swings.
+* **Absurd physics engine.** A bespoke lightweight layer tuned for comedy instead of realism. Punched cars launch with upward and lateral velocity plus angular velocity, bounce with squash at least once, and shed pooled debris. Every connect triggers a 90 ms hit-stop and a screen shake scaled to the launch.
 
-Why this split: splats are baked captures, procedural generation gives infinity. The procedural side runs entirely on the client with zero GPU server cost, which is exactly why static hosting on Cloudflare Pages fits: there is no backend to pay for.
+**Splat corridors.** Roadside scenery is grouped per chunk as a replaceable corridor, so a future baked gaussian splat capture can take over the procedural scenery at the same alignment without touching the road or the gameplay. The two planned systems plug in here: the splat world platform (any real street becomes a level) and the agentic AI director (it will drive the `aggression` input that traffic already accepts). Neither is implemented yet; the seams are.
+
+**Why this split.** Photorealism in a real-time browser game comes from baked captures, not from procedural generation. The road and the action are procedural and infinite; the photoreal layer arrives as baked splat corridors. Everything runs client-side with zero GPU server cost, which is exactly why static hosting on Cloudflare Pages fits.
 
 ---
 
-## Capture pipeline for landmarks
+## Capture pipeline for splat corridors
 
-To add a real landmark:
+To add a real roadside capture later:
 
-1. Capture the place with your phone (walk around it, 100 to 300 photos with good overlap).
-2. Train the 3D gaussian splat. Either use a cloud service like Polycam or Luma, or train locally with open 3DGS tooling on an RTX 3090.
-3. Export as `.spz` (small, streams well). `.ply` also works.
-4. Drop the file into `public/splats/` (for example `public/splats/landmarks/ruined-arch.spz`).
-5. Register it in `public/splats/manifest.json` with the target chunk index and a lateral offset from the path:
+1. Capture the street with your phone (100 to 300 photos with good overlap).
+2. Train the 3D gaussian splat with Polycam, Luma, or local 3DGS tooling on an RTX 3090.
+3. Export as `.spz` and register it in `public/splats/manifest.json` with the target chunk index and offset.
 
-```json
-{
-  "id": "ruined-arch",
-  "file": "splats/landmarks/ruined-arch.spz",
-  "chunkIndex": 3,
-  "offset": { "x": 8, "y": 0, "z": 0 }
-}
-```
-
-Entries that point at files which do not exist yet render as glowing placeholder obelisks and log a warning instead of crashing, so the game always stays playable while captures are in progress.
+Entries that point at files which do not exist yet render as glowing placeholder obelisks and log a warning instead of crashing.
 
 ---
 
 ## Deploy on Cloudflare Pages
 
-Option A, drag and drop: open Cloudflare Pages, create a project, drag this folder in. Leave the build command empty and set the output directory to `/`.
-
-Option B, git: this repo is already on GitHub. Connect it in Cloudflare Pages with framework preset "None", build command empty, output directory `/`. Every push redeploys.
-
-No environment variables or secrets are needed. All dependencies load from CDN via the import map in `index.html` (three@0.186.1, @sparkjsdev/spark@2.3.1).
+Push this repo to GitHub, connect it in Cloudflare Pages with framework preset "None", build command empty, output directory `/`. Every push redeploys. No environment variables or secrets are needed. All dependencies load from CDN via the import map in `index.html` (three@0.186.1, @sparkjsdev/spark@2.3.1).
 
 ---
 
@@ -80,14 +68,15 @@ No environment variables or secrets are needed. All dependencies load from CDN v
 
 ```
 index.html                  import map (CDN pins), HUD, overlays, CSS
-src/main.js                 boot, render loop, game state, HUD wiring
+src/main.js                 boot, render loop, game states, scoring, hit-stop
 src/rng.js                  seeded PRNG (mulberry32), integer hashing, helpers
-src/biomes.js               biome palettes, atmosphere, vegetation density, schedule
-src/world.js                chunk system, analytic terrain, path ribbon, flora
-src/player.js               first-person controls (desktop + touch), ground clamp
+src/road.js                 seeded highway chunks, analytic road height, splat corridor seam
+src/rider.js                first-person moto controller, cockpit, punch animation
+src/traffic.js              car spawning, cruise and aggressive behaviors, collisions
+src/physics.js              absurd physics engine: tumbling cars, pooled debris
 src/splats.js               Spark.js landmark loading with placeholder fallback
 public/splats/manifest.json landmark registry (placeholder entries included)
-scripts/test.sh             test gate: node --check, JSON validation, RNG determinism
+scripts/test.sh             test gate: node --check, JSON validation, determinism, no em dashes
 .openspec/                  OpenSpec config, feature specs and spec templates
 ```
 
@@ -95,10 +84,10 @@ scripts/test.sh             test gate: node --check, JSON validation, RNG determ
 
 ## Roadmap
 
-* Real baked landmarks replacing the two placeholder entries, captured on location.
-* World Labs Marble splat export as a future landmark source, once its export format stabilizes.
-* Denser trail life: ambient audio tied to biomes, distant landmark silhouettes.
-* Multiplayer: shared seeds with visible walkers, later.
+* Splat corridor captures replacing procedural roadside (splat world platform spec, draft).
+* Agentic AI director driving traffic aggression and set-pieces (ai-director spec, draft).
+* Real baked landmarks on the current manifest entries.
+* Ambient audio tied to speed and impacts.
 
 ---
 
@@ -106,7 +95,7 @@ scripts/test.sh             test gate: node --check, JSON validation, RNG determ
 
 This project uses **OpenSpec** for spec-driven development. Every feature or bugfix starts with a spec file under `.openspec/specs/`, following the templates in `.openspec/templates/`. Each spec includes a `roles` block to assign responsibility (`implementer`, `reviewer`, `qa`, `product_owner`) and needs `title`, `description`, `acceptance_criteria`, `test_plan` and `status`.
 
-The test gate is `sh scripts/test.sh`: it syntax-checks every module, validates the JSON files, and asserts the seeded RNG is deterministic. Run it before every commit.
+The test gate is `sh scripts/test.sh`: it syntax-checks every module, validates the JSON files, asserts the seeded RNG is deterministic, verifies the road module exposes the API the splat manager depends on, and rejects em dashes. Run it before every commit.
 
 ---
 
@@ -116,7 +105,7 @@ The test gate is `sh scripts/test.sh`: it syntax-checks every module, validates 
 | --- | --- |
 | Feature specs | [`.openspec/specs/`](.openspec/specs/) |
 | Spec-driven workflow config | [`.openspec/config.yaml`](.openspec/config.yaml) |
-| Splat capture pipeline | [README](#capture-pipeline-for-landmarks) |
+| Splat capture pipeline | [README](#capture-pipeline-for-splat-corridors) |
 | Cloudflare Pages deploy | [README](#deploy-on-cloudflare-pages) |
 | Release history | [`CHANGELOG.md`](CHANGELOG.md) |
 

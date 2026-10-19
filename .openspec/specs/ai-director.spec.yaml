@@ -1,0 +1,46 @@
+title: "Agentic AI director"
+slug: "ai-director"
+type: feature
+status: draft
+
+author: "arananet"
+created_at: "2026-10-18"
+updated_at: "2026-10-18"
+
+roles:
+  implementer: "arananet"
+  reviewer: null
+  qa: null
+  product_owner: "arananet"
+
+description: |
+  An agentic director watches how the player rides and orchestrates the
+  action cinematically instead of using static difficulty curves. It tracks
+  skill signals (dodge rate, punch accuracy, near miss frequency) and
+  directs traffic aggression, spawn patterns and set-piece events to keep
+  the player in flow. Set-pieces include the truck wall, the swarm and the
+  duel. The director is explicitly an agentic system and doubles as a
+  showcase of multi-agent orchestration inside a shipped game.
+
+acceptance_criteria:
+  - "Given a player dodging everything for 60 s, when the director evaluates, then aggression and event frequency increase within the next 30 s"
+  - "Given a player taking hits repeatedly, when the director evaluates, then pressure eases without ever dropping to zero action"
+  - "Given a set-piece trigger, when it fires, then traffic choreographs the event (e.g. trucks boxing the rider in) instead of spawning randomly"
+  - "Given the director running, when observed over a 5 minute run, then its decisions are logged in a trace inspectable after the run"
+
+test_plan:
+  - "TBD. The director must be testable headless: feed it scripted player signals and assert its decisions."
+
+qa_notes: |
+  This is the signature system. It should be designed like the agent
+  harnesses: versioned, observable, replayable.
+
+out_of_scope:
+  - "Server-side inference (the director runs fully client-side in v1)"
+  - "Learning across sessions (no persistence in v1)"
+
+eval_plan:
+  scenarios: []
+  metrics:
+    - "flow_maintenance: player stays in the target challenge band"
+    - "event_timing: set-pieces land during lulls, not during chaos"

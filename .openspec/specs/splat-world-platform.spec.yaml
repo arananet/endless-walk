@@ -1,0 +1,39 @@
+title: "Splat world platform (UGC levels)"
+slug: "splat-world-platform"
+type: feature
+status: draft
+
+author: "arananet"
+created_at: "2026-10-18"
+updated_at: "2026-10-18"
+
+roles:
+  implementer: "arananet"
+  reviewer: null
+  qa: null
+  product_owner: "arananet"
+
+description: |
+  Any real street becomes a playable level. A capture pipeline turns phone
+  footage into a gaussian splat corridor aligned to a road spline, packaged
+  as a level with a manifest v2 (splat file, road spline, lane count,
+  spawn profile). Levels are validated, published and listed in game. This
+  turns the game from a single endless road into a platform of
+  user-generated photoreal streets.
+
+acceptance_criteria:
+  - "Given phone footage of a street, when it goes through the capture pipeline, then a splat corridor aligned to a straight road spline is produced"
+  - "Given a level package, when it is validated, then the manifest schema, the splat file integrity and the minimum road length are all checked"
+  - "Given a published level, when a player selects it, then the endless road generator uses its spline and splat corridor instead of procedural scenery"
+  - "Given a level with missing or corrupt files, when it loads, then the game falls back to the procedural road with a warning, never a crash"
+
+test_plan:
+  - "TBD when the pipeline tooling is chosen"
+
+qa_notes: |
+  Capture UX is the product here. If capturing a street takes more than an
+  hour of fiddling, the platform fails.
+
+out_of_scope:
+  - "The capture training itself (uses the pipeline documented in the README: Polycam, Luma or local 3DGS)"
+  - "Moderation of published levels (needed before any public listing)"

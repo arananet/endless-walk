@@ -1,6 +1,6 @@
-# Feature Spec — created by scripts/openspec scaffold
+# Feature Spec : created by scripts/openspec scaffold
 # Fill in all sections before moving status to 'review'.
-# Acceptance criteria are your definition of done — be specific.
+# Acceptance criteria are your definition of done : be specific.
 
 title: "{{FEATURE_NAME}}"
 slug: "{{SLUG}}"
@@ -12,7 +12,7 @@ created_at: "{{DATE}}"
 updated_at: "{{DATE}}"
 
 roles:
-  implementer: null    # Who builds it — GitHub username or team
+  implementer: null    # Who builds it : GitHub username or team
   reviewer: null       # Who reviews the PR
   qa: null             # Who validates acceptance_criteria
   product_owner: null  # Who approves the spec (draft → approved)
@@ -43,7 +43,7 @@ implementation_skill: null
 
 eval_plan:
   # Optional. Use for features that involve an AI model, agent, or LLM-backed component.
-  # Leave the block empty (or remove it) for fully deterministic features — test_plan is enough.
+  # Leave the block empty (or remove it) for fully deterministic features : test_plan is enough.
   scenarios: []
     # - ".harness/scenarios/example.scenario.yaml"
   metrics: []
@@ -56,7 +56,7 @@ eval_plan:
 
 technical_notes: |
   <!-- Optional: constraints, dependencies, architecture decisions.
-       Do not design the solution here — save implementation details for the PR. -->
+       Do not design the solution here : save implementation details for the PR. -->
 
 linked_issues: []
   # - "https://github.com/{{GITHUB_OWNER}}/{{PROJECT_NAME}}/issues/1"

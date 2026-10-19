@@ -1,0 +1,45 @@
+title: "Seeded endless road generation"
+slug: "moto-road-generation"
+type: feature
+status: review
+
+author: "arananet"
+created_at: "2026-10-18"
+updated_at: "2026-10-18"
+
+roles:
+  implementer: "arananet"
+  reviewer: null
+  qa: null
+  product_owner: "arananet"
+
+description: |
+  The game world is an infinite multi-lane highway generated as seeded
+  chunks ahead of the rider. Each chunk is deterministic from
+  (seed, chunkIndex): road ribbon with 3 lanes, gentle curves and elevation,
+  roadside terrain with vegetation and props, lane markings, and lighting
+  rigs. Chunks generate ahead and dispose behind so memory stays bounded.
+  The roadside is structured as splat corridors so photoreal gaussian splat
+  captures can replace procedural scenery per the splat world platform spec.
+
+acceptance_criteria:
+  - "Given seed S and chunkIndex N, when chunk N is generated twice, then the road geometry, lanes and roadside are identical"
+  - "Given the rider moving forward, when they approach the last generated chunk, then new chunks exist before the road can end"
+  - "Given any two adjacent chunks, when the road crosses the border, then lanes are continuous with no gap or step"
+  - "Given a chunk, when a splat corridor capture is registered for it, then the procedural roadside is replaced by the splat scene at the same alignment"
+  - "Given a walk seed in the URL (?seed=...), when the page reloads with the same seed, then the same road is generated"
+
+test_plan:
+  - "Automated: scripts/test.sh asserts RNG determinism and syntax-checks all modules"
+  - "Manual: ride 2 km with no visible seams, holes or frame drops on desktop"
+
+qa_notes: |
+  Verify on a mid-range Android phone: chunk generation must not hitch.
+
+out_of_scope:
+  - "Intersections, exits or branching roads (one endless highway)"
+  - "Weather system (covered by a future spec)"
+
+technical_notes: |
+  Forward axis is -Z. Chunk length 60 m. Lane width 3.5 m. Road height is an
+  analytic function shared by the mesh, the rider and traffic placement.

@@ -1,0 +1,51 @@
+title: "Moto punch combat"
+slug: "moto-punch-combat"
+type: feature
+status: review
+
+author: "arananet"
+created_at: "2026-10-18"
+updated_at: "2026-10-18"
+
+roles:
+  implementer: "arananet"
+  reviewer: null
+  qa: null
+  product_owner: "arananet"
+
+description: |
+  First-person motorcycle combat on the endless road. The rider steers
+  between lanes at speed while traffic cars drive around them. Aggressive
+  cars telegraph and then swerve at the rider. The rider punches left or
+  right: a connected punch launches the car with the absurd physics engine,
+  a miss just swings. Collisions cost health; losing all health ends the
+  run. Score rewards distance, punches, near misses and combos.
+
+acceptance_criteria:
+  - "Given the game is playing, when the rider holds A/D or arrow keys, then the bike steers smoothly between lanes without leaving the road"
+  - "Given Q is pressed or the left half of the screen is tapped, when the punch cooldown is ready, then the left arm swings and a hitbox activates on the left side (mirrored for E / right half)"
+  - "Given a car inside the punch hitbox during the active frames, when the punch lands, then the car is handed to the absurd physics engine and the punch counter increments"
+  - "Given no car in the hitbox, when the punch fires, then the swing still animates and the cooldown still applies"
+  - "Given an aggressive car, when it decides to attack, then it telegraphs for at least 0.8 s (visible lean and lane drift) before swerving at the rider"
+  - "Given an aggressive car colliding with the rider, when the hit registers, then the rider loses 1 health, the screen shakes and brief slow motion plays"
+  - "Given the rider loses their last health point, when the wipeout resolves, then the game over screen shows distance, punches, max combo and best score"
+  - "Given consecutive punches within 3 s, when each lands, then the combo counter increments and the score multiplier grows up to x5"
+  - "Given a car passing within 1.5 m without collision, when it clears the rider, then a near miss bonus is awarded"
+
+test_plan:
+  - "Automated: node --check on all modules; determinism assertions in scripts/test.sh"
+  - "Manual desktop: steer full road width, punch both sides, confirm cooldown blocks spam, take 3 hits to reach game over"
+  - "Manual mobile: tap left/right halves to punch, swipe or tilt alternative documented if tap conflicts with steering"
+
+qa_notes: |
+  Punch input must never be eaten during chunk generation hitches. The
+  telegraph has to read clearly at 140 km/h or the game feels unfair.
+
+out_of_scope:
+  - "Weapons beyond fists"
+  - "Multiplayer"
+  - "The AI director difficulty system (separate spec, draft)"
+
+technical_notes: |
+  Punch hitbox: lateral 2.5 m on the punching side, longitudinal -2 m to
+  +6 m relative to the rider. Cooldown 0.35 s. Hit-stop 90 ms on connect.

@@ -1,0 +1,41 @@
+title: "Absurd physics engine"
+slug: "absurd-physics-engine"
+type: feature
+status: review
+
+author: "arananet"
+created_at: "2026-10-18"
+updated_at: "2026-10-18"
+
+roles:
+  implementer: "arananet"
+  reviewer: null
+  qa: null
+  product_owner: "arananet"
+
+description: |
+  A bespoke lightweight physics layer for punched cars, tuned for comedy
+  and impact instead of realism. This is the signature feel of the game and
+  the homage to the viral reel: cars do not just fall over, they launch,
+  tumble and bounce cinematically. It runs on simple rigid body
+  integration with scripted exaggeration, no physics library needed.
+
+acceptance_criteria:
+  - "Given a connected punch, when the car is launched, then it leaves with upward and lateral velocity plus angular velocity proportional to punch timing quality"
+  - "Given a launched car, when it hits the road, then it bounces with squash deformation at least once before settling"
+  - "Given a launched car, when it travels, then hubcaps or debris particles detach and fly with their own trajectories"
+  - "Given a punch connects, when the hit resolves, then a 90 ms hit-stop freezes the action followed by a screen shake scaled to the launch"
+  - "Given the rider wipeout, when it triggers, then the camera tumbles with the bike instead of cutting to black"
+  - "Given 60 fps on desktop, when 6 cars are tumbling simultaneously, then the frame rate holds (cheap integration, pooled particles)"
+
+test_plan:
+  - "Automated: node --check on src/physics.js"
+  - "Manual: punch 10 cars and confirm every one launches, tumbles, bounces and settles with no interpenetration glitches that read as bugs rather than comedy"
+
+qa_notes: |
+  The line between funny and broken is thin. If a bounce reads as a bug,
+  exaggerate it further or cut it.
+
+out_of_scope:
+  - "Real vehicle damage simulation"
+  - "A general physics engine for the whole scene (only punched cars and the wipeout use this)"

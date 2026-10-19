@@ -1,12 +1,14 @@
-// Landmark manager: baked gaussian splat captures placed along the trail.
+// Landmark manager: baked gaussian splat captures placed along the highway.
 // Splats are loaded from public/splats/manifest.json. Each entry pins a baked
-// capture file to a chunk index plus a lateral offset from the path.
+// capture file to a chunk index plus a lateral offset from the road center.
 // If a file is missing or fails to load, a procedural glowing obelisk takes its
 // place and a warning is logged. The game never crashes on a bad splat.
+// Roadside chunks are structured as splat corridors, so a future capture can
+// replace the procedural scenery per the splat world platform spec.
 
 import * as THREE from 'three';
 import { SplatMesh } from '@sparkjsdev/spark';
-import { chunkCenterZ, chunkIndexForZ } from './world.js';
+import { chunkCenterZ, chunkIndexForZ } from './road.js';
 
 const LOAD_RADIUS_CHUNKS = 2;
 const LOAD_TIMEOUT_MS = 20000;
