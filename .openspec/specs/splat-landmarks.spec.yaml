@@ -1,0 +1,44 @@
+title: "Gaussian splat landmarks"
+slug: "splat-landmarks"
+type: feature
+status: review
+
+author: "arananet"
+created_at: "2026-10-18"
+updated_at: "2026-10-18"
+
+roles:
+  implementer: "arananet"
+  reviewer: null
+  qa: null
+  product_owner: "arananet"
+
+description: |
+  Photoreal gaussian splat captures are placed as landmarks along the route,
+  driven by public/splats/manifest.json which maps each entry to a chunk
+  index and an offset. SplatMesh objects render through SparkRenderer inside
+  the same Three.js scene. If a manifest entry's file is missing, a glowing
+  procedural obelisk placeholder is shown instead and a warning is logged,
+  so the game never crashes on incomplete content.
+
+acceptance_criteria:
+  - "Given a manifest entry with an existing .spz file, when the player approaches its chunk, then the splat landmark loads and renders in the scene"
+  - "Given a manifest entry with a missing file, when its chunk generates, then a glowing obelisk placeholder appears and a warning is logged, with no exception"
+  - "Given a splat fails to load within 20 s, when the timeout fires, then the placeholder is shown and the game continues"
+  - "Given the player walks far past a landmark chunk, when the chunk is disposed, then the landmark is detached without leaking GPU resources owned by Spark"
+  - "Given the manifest lists landmarks out of order, when the game reads it, then each landmark still appears at its declared chunkIndex"
+
+test_plan:
+  - "Automated: node --check passes on src/splats.js; manifest.json and package.json parse as valid JSON"
+  - "Manual: with the two placeholder entries, walk to chunks 3 and 9 and confirm obelisks appear with console warnings"
+  - "Manual: drop a real .spz export at the manifest path, reload, confirm the photoreal landmark renders"
+
+qa_notes: |
+  Real captures come from the phone-to-.spz pipeline documented in the
+  README (Polycam/Luma cloud or local 3DGS training on the RTX 3090).
+  Large .spz files should be served from R2, not bundled with the page.
+
+out_of_scope:
+  - "Training or converting splats inside the repo"
+  - "Generating new splat geometry at runtime (splats are baked captures)"
+  - "Splat level-of-detail streaming (future: .rad format)"

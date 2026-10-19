@@ -1,0 +1,50 @@
+title: "Seeded endless route generation"
+slug: "endless-route-generation"
+type: feature
+status: review
+
+author: "arananet"
+created_at: "2026-10-18"
+updated_at: "2026-10-18"
+
+roles:
+  implementer: "arananet"
+  reviewer: null
+  qa: null
+  product_owner: "arananet"
+
+description: |
+  The walkable world is an infinite sequence of 60 m chunks generated
+  deterministically from (seed, chunkIndex). Each chunk builds an analytic
+  terrain heightfield, a walkable path ribbon smoothed across chunk borders
+  with a Catmull-Rom spline, and instanced vegetation and rocks. The biome
+  changes every 6 to 12 chunks following a seeded schedule. Chunks generate
+  ahead of the player and are disposed behind, so memory stays bounded no
+  matter how far the walk goes.
+
+acceptance_criteria:
+  - "Given seed S and chunkIndex N, when chunk N is generated twice, then the terrain, path and vegetation are identical"
+  - "Given the player walking forward, when they approach the last generated chunk, then new chunks are generated ahead before the player can reach the edge"
+  - "Given the player walks 1000 m, when old chunks are disposed, then no visible pop-in or holes appear behind or ahead"
+  - "Given any world position, when the terrain height is queried, then the analytic function, the mesh displacement and the player ground clamp agree (nothing samples the mesh)"
+  - "Given two adjacent chunks, when the path ribbon crosses the border, then it is continuous with no gap or step"
+  - "Given a walk seed in the URL (?seed=...), when the page reloads with the same seed, then the same route is generated"
+
+test_plan:
+  - "Automated: scripts/test.sh asserts mulberry32 and hashInts are deterministic for identical inputs"
+  - "Automated: node --check passes on src/world.js, src/rng.js, src/biomes.js"
+  - "Manual: start a walk, enable auto-walk, observe 500 m with no seams, holes or frame drops on desktop"
+
+qa_notes: |
+  Verify on a mid-range Android phone: chunk generation must not cause
+  visible hitches. If it does, generation moves to smaller time slices.
+
+out_of_scope:
+  - "Saving or resuming a walk (no persistence layer)"
+  - "Multiplayer or shared seeds"
+  - "Non-deterministic events along the route"
+
+technical_notes: |
+  Forward axis is -Z. Chunk 0 starts with a straight path for a clean spawn
+  view. Chunk materials are cloned per chunk and disposed; instanced meshes
+  share geometry and dispose only instance buffers.

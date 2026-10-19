@@ -1,0 +1,44 @@
+title: "First-person walk controls"
+slug: "first-person-walk-controls"
+type: feature
+status: review
+
+author: "arananet"
+created_at: "2026-10-18"
+updated_at: "2026-10-18"
+
+roles:
+  implementer: "arananet"
+  reviewer: null
+  qa: null
+  product_owner: "arananet"
+
+description: |
+  The player walks in first person along the generated route. Desktop uses
+  WASD or arrow keys to move and mouse drag or pointer-lock for looking.
+  Mobile uses a left virtual joystick to walk and right-side drag to look.
+  Auto-walk toggles continuous forward motion, P pauses, and the player
+  stays grounded on the terrain with a subtle head bob.
+
+acceptance_criteria:
+  - "Given the game is playing on desktop, when W or Up is held, then the player moves forward along the view direction"
+  - "Given the game is playing on desktop, when the mouse is dragged or pointer lock is active, then the camera looks around without moving the player"
+  - "Given a touch device, when the left joystick is pushed, then the player walks in the pushed direction relative to the camera"
+  - "Given auto-walk is on, when no key is pressed, then the player keeps walking forward"
+  - "Given the player walks off the path sideways, when they leave the corridor, then a soft pushback steers them back and a hard clamp stops them at the limit"
+  - "Given uneven terrain, when the player moves, then their eye height follows the analytic terrain height plus a fixed eye offset"
+  - "Given P is pressed while playing, when the game pauses, then movement and world generation freeze and the pause overlay shows"
+
+test_plan:
+  - "Automated: node --check passes on src/player.js"
+  - "Manual desktop: walk 100 m with WASD, look with pointer lock, toggle auto-walk with T, pause with P"
+  - "Manual mobile: joystick walks, right-side drag looks, no page scroll or zoom gestures leak through"
+
+qa_notes: |
+  touch-action none is required on the canvas and body so the browser does
+  not hijack gestures. Pointer lock is desktop only.
+
+out_of_scope:
+  - "Jumping, sprinting stamina or crouching"
+  - "Collision with individual trees or rocks (only the path corridor clamp)"
+  - "Gamepad support"

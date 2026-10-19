@@ -1,0 +1,36 @@
+title: "HUD and game states"
+slug: "hud-and-game-states"
+type: feature
+status: review
+
+author: "arananet"
+created_at: "2026-10-18"
+updated_at: "2026-10-18"
+
+roles:
+  implementer: "arananet"
+  reviewer: null
+  qa: null
+  product_owner: "arananet"
+
+description: |
+  The game flows through menu, playing and paused states with start and
+  pause overlays. The HUD shows distance walked in meters, the current
+  biome name and the walk seed in hex. A New walk button restarts with a
+  fresh random seed, and the seed can also be set via the ?seed= URL
+  parameter for sharing a specific route.
+
+acceptance_criteria:
+  - "Given the page loads, when the start overlay is visible, then the world already renders behind it and the Start walking button begins the walk"
+  - "Given the game is playing, when the player walks, then the HUD distance increases in meters and the biome label matches the current chunk"
+  - "Given the New walk button is pressed, when the page reloads, then a new random seed is used and the HUD shows it"
+  - "Given a URL with ?seed=1234, when the page loads, then the route is generated from seed 1234 and the HUD shows the matching hex seed"
+  - "Given the game is paused, when Resume is pressed, then the walk continues from the exact same position"
+
+test_plan:
+  - "Automated: node --check passes on src/main.js"
+  - "Manual: full loop menu to playing to paused to resume, HUD values verified against player state"
+
+out_of_scope:
+  - "Sharing or copying the seed link (only the URL parameter)"
+  - "Persistent HUD customization"

@@ -1,0 +1,30 @@
+# OpenSpec Configuration — endless-walk
+# Onboarded from arananet/openspec-template on 2026-10-18.
+
+project:
+  name: "endless-walk"
+  owner: "arananet"
+  team: "arananet"
+  domain: "web-games"
+  description: "Endless first-person walking game: procedurally generated infinite routes with gaussian splat landmarks, running fully client-side."
+  tech_stack: "javascript, three.js, spark.js, gaussian-splatting, cloudflare-pages"
+
+spec:
+  required_fields:
+    - title
+    - description
+    - acceptance_criteria
+    - test_plan
+    - status
+  enforce_on_pr: true
+  enforce_on_commit: true
+  min_acceptance_criteria: 1
+  statuses:
+    - draft
+    - review
+    - approved
+  approved_required_for_merge: false
+
+testing:
+  require_tests: true
+  test_command: "sh scripts/test.sh"
